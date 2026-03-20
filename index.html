@@ -3,66 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>桜 Sensei — Aprèn Japonès</title>
+    <title>Lingua Sensei — Aprèn Idiomes</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            --sakura: #ffb7c5;
-            --sakura-dark: #e8909c;
-            --ink: #2c2c2c;
-            --paper: #faf8f5;
-            --gold: #d4a574;
-            --forest: #4a6741;
+            --primary: #6c5ce7;
+            --primary-dark: #5b4cdb;
+            --secondary: #a29bfe;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --success: #00b894;
+            --warning: #fdcb6e;
         }
         
         body {
-            font-family: 'Zen Kaku Gothic New', sans-serif;
+            font-family: 'Noto Sans', -apple-system, sans-serif;
             min-height: 100vh;
-            background: var(--paper);
+            background: var(--bg);
             overflow: hidden;
             position: relative;
         }
         
-        /* ==================== SAKURA BACKGROUND ==================== */
-        .sakura-container {
+        /* ==================== ANIMATED BACKGROUND ==================== */
+        .bg-shapes {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            overflow: hidden;
             z-index: 0;
+            overflow: hidden;
         }
         
-        .petal {
+        .shape {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--sakura);
-            border-radius: 50% 0 50% 50%;
-            opacity: 0.6;
-            animation: fall linear infinite;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s ease-in-out infinite;
         }
         
-        @keyframes fall {
-            0% {
-                transform: translateY(-10vh) rotate(0deg) translateX(0);
-                opacity: 0;
-            }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% {
-                transform: translateY(110vh) rotate(720deg) translateX(100px);
-                opacity: 0;
-            }
+        .shape:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            background: var(--success);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: var(--warning);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -20px) rotate(5deg); }
+            50% { transform: translate(-10px, 20px) rotate(-5deg); }
+            75% { transform: translate(15px, 10px) rotate(3deg); }
+        }
+        
+        /* ==================== LOGIN SCREEN ==================== */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg) 0%, #dfe6e9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .login-box {
+            background: var(--card);
+            padding: 50px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+        
+        .login-box .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-box h2 {
+            color: var(--text);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .login-box .subtitle {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .login-box label {
+            display: block;
+            text-align: left;
+            color: var(--text);
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .login-box select, .login-box input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 15px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: var(--card);
+        }
+        
+        .login-box select:focus, .login-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+        }
+        
+        .login-box button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .login-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(108,92,231,0.3);
+        }
+        
+        .login-box .error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
         }
         
         /* ==================== HEADER ==================== */
@@ -71,30 +180,26 @@
             z-index: 10;
             text-align: center;
             padding: 20px;
-            background: linear-gradient(180deg, rgba(255,183,197,0.3) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(108,92,231,0.1) 0%, transparent 100%);
         }
         
         .header h1 {
-            font-family: 'Shippori Mincho', serif;
-            font-size: 2.5rem;
-            color: var(--ink);
-            letter-spacing: 0.3em;
-            text-shadow: 2px 2px 0 var(--sakura);
+            font-size: 2rem;
+            color: var(--text);
+            font-weight: 700;
         }
         
-        .header h1 span {
+        .header h1 .flag { font-size: 2.2rem; margin-right: 10px; }
+        
+        .header .lang-badge {
             display: inline-block;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        .header h1 span:nth-child(2) { animation-delay: 0.2s; }
-        .header h1 span:nth-child(3) { animation-delay: 0.4s; }
-        .header h1 span:nth-child(4) { animation-delay: 0.6s; }
-        .header h1 span:nth-child(5) { animation-delay: 0.8s; }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            padding: 6px 16px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
         }
         
         /* ==================== MAIN LAYOUT ==================== */
@@ -102,32 +207,29 @@
             position: relative;
             z-index: 10;
             display: flex;
-            height: calc(100vh - 100px);
+            height: calc(100vh - 110px);
             padding: 0 20px 20px;
             gap: 20px;
             max-width: 1400px;
             margin: 0 auto;
         }
         
-        /* ==================== LEFT PANEL (CHAT) ==================== */
         .chat-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: white;
+            background: var(--card);
             border-radius: 24px;
-            box-shadow: 
-                0 4px 20px rgba(0,0,0,0.08),
-                0 0 0 1px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             overflow: hidden;
         }
         
-        /* Controls Bar */
         .controls-bar {
             display: flex;
             gap: 10px;
             padding: 16px 20px;
-            background: linear-gradient(135deg, var(--sakura) 0%, #ffdde1 100%);
+            background: var(--card);
+            border-bottom: 1px solid #eee;
             flex-wrap: wrap;
         }
         
@@ -141,50 +243,39 @@
             transition: all 0.3s ease;
         }
         
-        .controls-bar select {
-            background: white;
-            color: var(--ink);
-            flex: 1;
-            min-width: 120px;
-        }
+        .controls-bar select { background: var(--bg); color: var(--text); }
         
-        .controls-bar button {
-            background: var(--ink);
-            color: white;
-        }
+        .controls-bar button { background: var(--primary); color: white; }
         
         .controls-bar button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(108,92,231,0.3);
         }
         
-        /* Topic Buttons */
+        .controls-bar button.secondary { background: var(--bg); color: var(--text); }
+        
         .topics-bar {
             display: flex;
             gap: 8px;
             padding: 12px 20px;
-            background: #fff5f7;
+            background: #fafafa;
             overflow-x: auto;
         }
         
         .topics-bar button {
             padding: 8px 16px;
             border-radius: 20px;
-            border: 2px solid var(--sakura);
+            border: 2px solid var(--secondary);
             background: white;
-            color: var(--sakura-dark);
+            color: var(--primary);
             font-size: 12px;
             white-space: nowrap;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .topics-bar button:hover {
-            background: var(--sakura);
-            color: white;
-        }
+        .topics-bar button:hover { background: var(--secondary); color: white; }
         
-        /* Chat Area */
         .chat-area {
             flex: 1;
             overflow-y: auto;
@@ -192,15 +283,15 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            background: #fcfcfc;
         }
         
         .chat-area::-webkit-scrollbar { width: 6px; }
         .chat-area::-webkit-scrollbar-thumb {
-            background: var(--sakura);
+            background: var(--secondary);
             border-radius: 10px;
         }
         
-        /* Messages */
         .message {
             max-width: 85%;
             padding: 16px 20px;
@@ -211,7 +302,7 @@
         
         .message.user {
             align-self: flex-end;
-            background: linear-gradient(135deg, var(--forest) 0%, #5d7d52 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             border-bottom-right-radius: 6px;
         }
@@ -226,29 +317,18 @@
         
         .message.sensei .sender {
             font-size: 11px;
-            color: var(--sakura-dark);
+            color: var(--primary);
             margin-bottom: 6px;
             font-weight: 600;
         }
         
-        .message.thinking {
-            background: #f8f8f8;
-            font-style: italic;
-            color: #888;
-        }
+        .message.thinking { background: #f8f8f8; font-style: italic; color: #888; }
         
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Input Area */
         .input-area {
             display: flex;
             gap: 10px;
@@ -269,8 +349,8 @@
         }
         
         .input-area input:focus {
-            border-color: var(--sakura);
-            box-shadow: 0 0 0 3px rgba(255,183,197,0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
         }
         
         .mic-btn {
@@ -278,21 +358,15 @@
             height: 50px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, var(--forest) 0%, #5d7d52 100%);
+            background: linear-gradient(135deg, var(--success) 0%, #00a884 100%);
             color: white;
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .mic-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .mic-btn.active {
-            background: var(--sakura-dark);
-            animation: pulse 1s infinite;
-        }
+        .mic-btn:hover { transform: scale(1.1); }
+        .mic-btn.active { background: var(--warning); animation: pulse 1s infinite; }
         
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
@@ -307,14 +381,11 @@
             background: #fafafa;
         }
         
-        /* ==================== RIGHT PANEL (PHRASES) ==================== */
         .phrases-panel {
             width: 300px;
-            background: white;
+            background: var(--card);
             border-radius: 24px;
-            box-shadow: 
-                0 4px 20px rgba(0,0,0,0.08),
-                0 0 0 1px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -322,17 +393,11 @@
         
         .phrases-header {
             padding: 20px;
-            background: linear-gradient(135deg, var(--gold) 0%, #e8c4a0 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
         }
         
-        .phrases-header h2 {
-            font-family: 'Shippori Mincho', serif;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .phrases-header h2 { font-size: 1rem; }
         
         .phrases-list {
             flex: 1;
@@ -342,180 +407,92 @@
         
         .phrases-list::-webkit-scrollbar { width: 4px; }
         .phrases-list::-webkit-scrollbar-thumb {
-            background: var(--sakura);
+            background: var(--secondary);
             border-radius: 10px;
         }
         
         .phrase-card {
-            background: linear-gradient(135deg, #fff 0%, #fef9f9 100%);
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-left: 4px solid var(--sakura);
+            border-left: 4px solid var(--primary);
         }
         
         .phrase-card:hover {
             transform: translateX(8px);
-            box-shadow: 0 4px 15px rgba(255,183,197,0.3);
+            box-shadow: 0 4px 15px rgba(108,92,231,0.2);
         }
         
-        .phrase-kanji {
-            font-family: 'Shippori Mincho', serif;
-            font-size: 1.3rem;
-            color: var(--ink);
+        .phrase-original {
+            font-size: 1rem;
+            color: var(--text);
             margin-bottom: 6px;
-        }
-        
-        .phrase-romaji {
-            font-size: 12px;
-            color: var(--sakura-dark);
-            font-style: italic;
-            margin-bottom: 4px;
+            font-weight: 500;
         }
         
         .phrase-translation {
-            font-size: 11px;
-            color: #888;
+            font-size: 12px;
+            color: var(--text-light);
+            font-style: italic;
         }
         
-        /* ==================== RESPONSIVE ==================== */
         @media (max-width: 900px) {
             .phrases-panel { display: none; }
-            .header h1 { font-size: 1.8rem; }
+            .header h1 { font-size: 1.5rem; }
         }
         
         @media (max-width: 500px) {
             .app-container { padding: 0 10px 10px; }
             .controls-bar { padding: 12px; }
-            .header h1 { font-size: 1.4rem; letter-spacing: 0.1em; }
-        }
-        
-        /* ==================== SPECIAL EFFECTS ==================== */
-        .ink-splash {
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(44,44,44,0.03) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .ink-splash:nth-child(1) { top: 10%; left: 5%; }
-        .ink-splash:nth-child(2) { bottom: 20%; right: 10%; width: 200px; height: 200px; }
-        
-        /* ==================== LOGIN SCREEN ==================== */
-        .login-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--paper) 0%, #fff5f7 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .login-box h2 {
-            font-family: 'Shippori Mincho', serif;
-            color: var(--ink);
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-        
-        .login-box p {
-            color: #888;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-        
-        .login-box input {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #f0f0f0;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-bottom: 15px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        .login-box input:focus {
-            border-color: var(--sakura);
-            box-shadow: 0 0 0 3px rgba(255,183,197,0.2);
-        }
-        
-        .login-box button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--sakura) 0%, var(--sakura-dark) 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .login-box button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255,183,197,0.4);
-        }
-        
-        .login-box .error {
-            color: #e74c3c;
-            font-size: 12px;
-            margin-top: 10px;
-            display: none;
         }
         
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
+    <div class="bg-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
-            <h2>🌸 桜 Sensei</h2>
-            <p>Introdueix la teva clau API de Google Gemini per accedir</p>
+            <div class="logo">🌐</div>
+            <h2>Lingua Sensei</h2>
+            <p class="subtitle">El teu assistent personal per aprendre idiomes</p>
+            
+            <label for="idiomaSelect">Tria l'idioma que vols practicar:</label>
+            <select id="idiomaSelect">
+                <option value="ja-JP">🇯🇵 Japonès</option>
+                <option value="en-US">🇬🇧 Anglès</option>
+                <option value="es-ES">🇪🇸 Castellà</option>
+                <option value="fr-FR">🇫🇷 Francès</option>
+                <option value="de-DE">🇩🇪 Alemany</option>
+                <option value="it-IT">🇮🇹 Italià</option>
+                <option value="pt-BR">🇧🇷 Portugués</option>
+                <option value="zh-CN">🇨🇳 Xinès</option>
+                <option value="ko-KR">🇰🇷 Coreà</option>
+                <option value="ru-RU">🇷🇺 Rus</option>
+            </select>
+            
+            <label for="apiKeyInput">Clau API de Google Gemini:</label>
             <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
-            <button onclick="verificarClau()">Accedir →</button>
-            <p class="error" id="loginError">Clau API invàlida</p>
+            
+            <button onclick="verificarClau()">Començar a aprendre →</button>
+            <p class="error" id="loginError">Introdueix una clau API vàlida</p>
         </div>
     </div>
     
-    <!-- Decorative Elements -->
-    <div class="ink-splash"></div>
-    <div class="ink-splash"></div>
-    
-    <!-- Sakura Petals -->
-    <div class="sakura-container" id="sakura"></div>
-    
-    <!-- Header -->
     <header class="header">
-        <h1>
-            <span>桜</span><span> </span><span>S</span><span>e</span><span>n</span><span>s</span><span>e</span><span>i</span>
-        </h1>
+        <h1><span class="flag">🌐</span>Lingua Sensei</h1>
+        <div class="lang-badge" id="langBadge">🇯🇵 Japonès</div>
     </header>
     
-    <!-- Main App -->
     <main class="app-container">
-        <!-- Chat Panel -->
         <section class="chat-panel">
             <div class="controls-bar">
                 <select id="nivell">
@@ -529,31 +506,38 @@
                     <option value="1.2">Ràpida</option>
                 </select>
                 <button id="netejar">🗑️ Netejar</button>
-                <button id="exportar">📄 PDF</button>
-                <button id="logout" title="Canviar clau API">🔑</button>
+                <button id="exportar" class="secondary">📄 PDF</button>
+                <button id="logout" class="secondary">🔑</button>
             </div>
             
             <div class="topics-bar">
-                <button data-tema="menjar japonès">🍣 Menjar</button>
-                <button data-tema="viatjar al Japó">✈️ Viatges</button>
-                <button data-tema="anime i manga">🎬 Anime</button>
-                <button data-tema="cultura japonesa">🎎 Cultura</button>
+                <button data-tema="Conversa informal">💬 Casual</button>
+                <button data-tema="Feina i negocis">💼 Feina</button>
+                <button data-tema="Viatges">✈️ Viatges</button>
+                <button data-tema="Cultura">🎭 Cultura</button>
+                <button data-tema="Menjar i restaurants">🍽️ Menjar</button>
+                <button data-tema="Esports">⚽ Esports</button>
+                <button data-tema="Pel·lícules i sèries">🎬 Cinema</button>
+                <button data-tema="Música">🎵 Música</button>
+                <button data-tema="Tecnologia">💻 Tech</button>
+                <button data-tema="Història">📜 Història</button>
+                <button data-tema="Natura i medi ambient">🌿 Natura</button>
+                <button data-tema="Relacions socials">👥 Relacions</button>
             </div>
             
             <div class="chat-area" id="chat"></div>
             
             <div class="input-area">
-                <input type="text" id="input" placeholder="Escriu en japonès..." autofocus>
+                <input type="text" id="input" placeholder="Escriu el que vulguis..." autofocus>
                 <button class="mic-btn" id="mic">🎤</button>
             </div>
             
             <div class="status" id="status"></div>
         </section>
         
-        <!-- Phrases Panel -->
         <aside class="phrases-panel">
             <div class="phrases-header">
-                <h2>📝 、私のフレーズ</h2>
+                <h2>📝 Les meves frases</h2>
             </div>
             <div class="phrases-list" id="phrases"></div>
         </aside>

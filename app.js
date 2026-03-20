@@ -1,12 +1,31 @@
 // ==================== CONFIG ====================
 let API_KEY = sessionStorage.getItem('sensei_api_key') || '';
+let SELECTED_LANG = sessionStorage.getItem('sensei_lang') || 'ja-JP';
+let SELECTED_FLAG = sessionStorage.getItem('sensei_flag') || '🇯🇵 Japonès';
 const MODEL = 'gemini-3.1-flash-lite-preview';
+
+// ==================== LANGUAGE DATA ====================
+const LANGUAGES = {
+    'ja-JP': { name: 'Japonès', flag: '🇯🇵', voice: 'ja-JP' },
+    'en-US': { name: 'Anglès', flag: '🇬🇧', voice: 'en-US' },
+    'es-ES': { name: 'Castellà', flag: '🇪🇸', voice: 'es-ES' },
+    'fr-FR': { name: 'Francès', flag: '🇫🇷', voice: 'fr-FR' },
+    'de-DE': { name: 'Alemany', flag: '🇩🇪', voice: 'de-DE' },
+    'it-IT': { name: 'Italià', flag: '🇮🇹', voice: 'it-IT' },
+    'pt-BR': { name: 'Portugués', flag: '🇧🇷', voice: 'pt-BR' },
+    'zh-CN': { name: 'Xinès', flag: '🇨🇳', voice: 'zh-CN' },
+    'ko-KR': { name: 'Coreà', flag: '🇰🇷', voice: 'ko-KR' },
+    'ru-RU': { name: 'Rus', flag: '🇷🇺', voice: 'ru-RU' }
+};
 
 // ==================== LOGIN ====================
 function verificarClau() {
-    const input = document.getElementById('apiKeyInput');
-    const clau = input.value.trim();
+    const clauInput = document.getElementById('apiKeyInput');
+    const idiomaSelect = document.getElementById('idiomaSelect');
     const error = document.getElementById('loginError');
+    
+    const clau = clauInput.value.trim();
+    const idioma = idiomaSelect.value;
     
     if (!clau || !clau.startsWith('AIza')) {
         error.style.display = 'block';
@@ -14,44 +33,30 @@ function verificarClau() {
     }
     
     API_KEY = clau;
+    SELECTED_LANG = idioma;
+    SELECTED_FLAG = idiomaSelect.options[idiomaSelect.selectedIndex].text;
+    
     sessionStorage.setItem('sensei_api_key', clau);
+    sessionStorage.setItem('sensei_lang', idioma);
+    sessionStorage.setItem('sensei_flag', SELECTED_FLAG);
+    
     document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('langBadge').textContent = SELECTED_FLAG;
 }
 
 document.getElementById('apiKeyInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') verificarClau();
 });
 
-// Verificar si ja té clau guardada
 if (API_KEY) {
     document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('langBadge').textContent = SELECTED_FLAG;
 }
 
 // ==================== STATE ====================
 let carregant = false;
 let conversacioIA = JSON.parse(localStorage.getItem("chat")) || [];
 let frasesAprendidas = JSON.parse(localStorage.getItem("frases")) || [];
-
-// ==================== SAKURA EFFECT ====================
-function crearPetales() {
-    const container = document.getElementById('sakura');
-    if (!container) return;
-    
-    const colors = ['#ffb7c5', '#ffd1dc', '#ffe4e8', '#fff0f3'];
-    
-    for (let i = 0; i < 15; i++) {
-        const petal = document.createElement('div');
-        petal.className = 'petal';
-        petal.style.left = Math.random() * 100 + '%';
-        petal.style.animationDuration = (8 + Math.random() * 8) + 's';
-        petal.style.animationDelay = Math.random() * 10 + 's';
-        petal.style.background = colors[Math.floor(Math.random() * colors.length)];
-        petal.style.width = (8 + Math.random() * 8) + 'px';
-        petal.style.height = petal.style.width;
-        container.appendChild(petal);
-    }
-}
-crearPetales();
 
 // ==================== DOM ELEMENTS ====================
 const chat = document.getElementById('chat');
@@ -65,19 +70,14 @@ const exportar = document.getElementById('exportar');
 const logout = document.getElementById('logout');
 const phrases = document.getElementById('phrases');
 
-// Logout - canvi de clau API
-logout.onclick = () => {
-    sessionStorage.removeItem('sensei_api_key');
-    location.reload();
-};
-
 // ==================== UI FUNCTIONS ====================
 function afegirMissatge(role, text) {
     const div = document.createElement('div');
     div.className = `message ${role === 'user' ? 'user' : 'sensei'}`;
     
     if (role === 'sensei') {
-        div.innerHTML = `<div class="sender">🌸 Sensei</div>${text}`;
+        const langData = LANGUAGES[SELECTED_LANG];
+        div.innerHTML = `<div class="sender">${langData.flag} ${langData.name} Sensei</div>${text}`;
     } else {
         div.innerHTML = text;
     }
@@ -87,22 +87,19 @@ function afegirMissatge(role, text) {
     return div;
 }
 
-function setStatus(t) {
-    status.innerText = t;
-}
+function setStatus(t) { status.innerText = t; }
 
 function crearPhraseCard(frase) {
     const card = document.createElement('div');
     card.className = 'phrase-card';
     card.innerHTML = `
-        <div class="phrase-kanji">${frase.kanji}</div>
-        <div class="phrase-romaji">${frase.romaji}</div>
+        <div class="phrase-original">${frase.original}</div>
         <div class="phrase-translation">${frase.traduccion}</div>
     `;
     
     card.onclick = () => {
-        const u = new SpeechSynthesisUtterance(frase.romaji);
-        u.lang = "ja-JP";
+        const u = new SpeechSynthesisUtterance(frase.original);
+        u.lang = SELECTED_LANG;
         u.rate = parseFloat(velocitat.value);
         speechSynthesis.speak(u);
     };
@@ -110,24 +107,25 @@ function crearPhraseCard(frase) {
     phrases.appendChild(card);
 }
 
-// Load saved phrases
 frasesAprendidas.forEach(crearPhraseCard);
 
 // ==================== PROMPT ====================
 function promptSistema() {
     const nivellVal = nivell.value;
-    let txt = "Ets un professor de japonès molt simpàtic i pacient. ";
+    const langData = LANGUAGES[SELECTED_LANG];
+    
+    let txt = `Ets un professor de ${langData.name} molt simpàtic i pacient. `;
     txt += "Respostes curtes i clares. Corregeix errors amb tacte. ";
     txt += "Acaba sempre amb una pregunta per mantenir la conversa. ";
-    txt += " Quan ensenyis frases noves, posa-les en format: **kanji | romaji | traducció | nota breu** ";
-    txt += " AL FINAL, afegeix una línia [VEU] seguida de japonès fluid per llegir en veu alta:";
+    txt += " Quan ensenyis frases noves, posa-les en format: **frase original | traducció català | nota breu** ";
+    txt += " AL FINAL, afegeix una línia [VEU] seguida de text en l'idioma que es pugui llegir en veu alta:";
     
     if (nivellVal === 'principiant') {
-        txt += " Utilitza català simple i romaji. Explica el significat.";
+        txt += ` Utilitza català simple i ${langData.name} bàsic. Explica el significat.`;
     } else if (nivellVal === 'intermedi') {
-        txt += " Barreja japonès amb explicacions en català.";
+        txt += ` Barreja ${langData.name} amb explicacions en català.`;
     } else {
-        txt += " Principalment japonès natural, mínimes explicacions en català.";
+        txt += ` Principalment ${langData.name} natural, mínimes explicacions en català.`;
     }
     
     return txt;
@@ -140,7 +138,7 @@ async function obtenirResposta() {
 
     const bubble = afegirMissatge('sensei', 'Pensant...');
     bubble.classList.add('thinking');
-    setStatus("Conectant amb Sakura...");
+    setStatus("Conectant...");
 
     try {
         const history = conversacioIA.slice(-6, -1)
@@ -163,15 +161,14 @@ async function obtenirResposta() {
         );
 
         if (res.status === 429) {
-            bubble.innerHTML = '<div class="sender">🌸 Sensei</div>Masses peticions! Esperem una estona... 😅';
+            const langData = LANGUAGES[SELECTED_LANG];
+            bubble.innerHTML = `<div class="sender">${langData.flag} ${langData.name} Sensei</div>Masses peticions! Esperem... 😅`;
             setStatus("Quota excedida");
             carregant = false;
             return;
         }
 
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No sé què respondre... 😅";
@@ -180,7 +177,8 @@ async function obtenirResposta() {
         const perMostrar = linies.filter(l => !l.startsWith('[VEU]')).join('\n');
         const perVoz = linies.find(l => l.startsWith('[VEU]'))?.replace('[VEU]', '').trim() || perMostrar;
 
-        bubble.innerHTML = `<div class="sender">🌸 Sensei</div>${perMostrar}`;
+        const langData = LANGUAGES[SELECTED_LANG];
+        bubble.innerHTML = `<div class="sender">${langData.flag} ${langData.name} Sensei</div>${perMostrar}`;
 
         conversacioIA.push({ role: "model", parts: [{ text: perMostrar }] });
         localStorage.setItem("chat", JSON.stringify(conversacioIA));
@@ -191,7 +189,8 @@ async function obtenirResposta() {
 
     } catch(e) {
         console.error(e);
-        bubble.innerHTML = '<div class="sender">🌸 Sensei</div>Oh no! Error de connexió 😢';
+        const langData = LANGUAGES[SELECTED_LANG];
+        bubble.innerHTML = `<div class="sender">${langData.flag} ${langData.name} Sensei</div>Oh no! Error de connexió 😢`;
         setStatus("Error");
     }
 
@@ -201,7 +200,7 @@ async function obtenirResposta() {
 // ==================== VOICE ====================
 function parlar(text) {
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ja-JP";
+    u.lang = SELECTED_LANG;
     u.rate = parseFloat(velocitat.value);
     speechSynthesis.speak(u);
 }
@@ -215,13 +214,12 @@ function extraerFrases(text) {
         
         if (parts.length >= 2) {
             const frase = {
-                kanji: parts[0] || '',
-                romaji: parts[1] || '',
-                traduccion: parts[2] || '',
-                explicacion: parts[3] || ''
+                original: parts[0] || '',
+                traduccion: parts[1] || '',
+                explicacion: parts[2] || ''
             };
             
-            if (!frasesAprendidas.some(f => f.kanji === frase.kanji)) {
+            if (!frasesAprendidas.some(f => f.original === frase.original)) {
                 frasesAprendidas.push(frase);
                 crearPhraseCard(frase);
                 localStorage.setItem("frases", JSON.stringify(frasesAprendidas));
@@ -241,7 +239,6 @@ function enviar(text) {
     obtenirResposta();
 }
 
-// Enter to send
 input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
         const text = this.value.trim();
@@ -252,7 +249,6 @@ input.addEventListener("keydown", function(e) {
     }
 });
 
-// Topic buttons
 document.querySelectorAll('[data-tema]').forEach(btn => {
     btn.onclick = () => enviar(`Parlem sobre ${btn.dataset.tema}`);
 });
@@ -260,10 +256,11 @@ document.querySelectorAll('[data-tema]').forEach(btn => {
 // Mic
 let escoltant = false;
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-recognition.lang = "ja-JP";
+recognition.lang = SELECTED_LANG;
 
 mic.onclick = () => {
     if (escoltant) return;
+    recognition.lang = SELECTED_LANG;
     recognition.start();
     escoltant = true;
     mic.classList.add('active');
@@ -285,68 +282,42 @@ netejar.onclick = () => {
     phrases.innerHTML = '';
 };
 
+// Logout
+logout.onclick = () => {
+    sessionStorage.removeItem('sensei_api_key');
+    sessionStorage.removeItem('sensei_lang');
+    sessionStorage.removeItem('sensei_flag');
+    location.reload();
+};
+
 // Export PDF
 exportar.onclick = () => {
+    const langData = LANGUAGES[SELECTED_LANG];
+    
     let html = `
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
             <style>
-                body { 
-                    font-family: 'Hiragino Mincho ProN', 'Yu Mincho', serif; 
-                    padding: 50px; 
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-                h1 { 
-                    text-align: center; 
-                    color: #d4a574; 
-                    border-bottom: 2px solid #ffb7c5;
-                    padding-bottom: 20px;
-                    margin-bottom: 30px;
-                }
-                .frase { 
-                    margin-bottom: 30px; 
-                    padding: 20px;
-                    background: #faf8f5;
-                    border-radius: 12px;
-                    border-left: 4px solid #ffb7c5;
-                }
-                .kanji { 
-                    font-size: 28px; 
-                    margin-bottom: 8px;
-                }
-                .romaji { 
-                    color: #d4a574;
-                    font-style: italic;
-                    margin-bottom: 5px;
-                }
-                .traduccion { 
-                    color: #666;
-                    margin-bottom: 5px;
-                }
-                .explicacion { 
-                    color: #999; 
-                    font-size: 12px;
-                }
-                .fecha {
-                    text-align: center;
-                    color: #999;
-                    margin-top: 40px;
-                }
+                body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 50px; max-width: 800px; margin: 0 auto; }
+                h1 { text-align: center; color: #6c5ce7; border-bottom: 2px solid #a29bfe; padding-bottom: 20px; margin-bottom: 30px; }
+                .frase { margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #6c5ce7; }
+                .original { font-size: 22px; margin-bottom: 8px; color: #2d3436; }
+                .traduccion { color: #636e72; margin-bottom: 5px; }
+                .explicacion { color: #999; font-size: 12px; font-style: italic; }
+                .fecha { text-align: center; color: #999; margin-top: 40px; font-size: 14px; }
             </style>
         </head>
         <body>
-            <h1>🌸 Les Meves Frases Japoneses</h1>
-            <p class="fecha">Generat per Sensei IA - ${new Date().toLocaleDateString('ca-ES')}</p>
+            <h1>🌐 Les Meves Frases en ${langData.name}</h1>
+            <p class="fecha">Generat per Lingua Sensei - ${new Date().toLocaleDateString('ca-ES')}</p>
     `;
     
     frasesAprendidas.forEach(f => {
         html += `
             <div class="frase">
-                <div class="kanji">${f.kanji}</div>
-                <div class="romaji">${f.romaji}</div>
+                <div class="original">${f.original}</div>
                 <div class="traduccion">${f.traduccion}</div>
                 ${f.explicacion ? `<div class="explicacion">${f.explicacion}</div>` : ''}
             </div>
